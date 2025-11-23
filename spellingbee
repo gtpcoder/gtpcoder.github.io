@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Spelling Bee Reviewer (Inline JSON + Random Next + Toggle List)</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; background: #f5f5f5; color: #222; }
+    header { background: #ffd54f; padding: 1rem 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,.1); }
+    .app { display: flex; height: calc(100vh - 90px); }
+    .sidebar { width: 35%; max-width: 400px; border-right: 1px solid #ddd; background: #fff; display: flex; flex-direction: column; }
+    .controls { padding: .75rem; border-bottom: 1px solid #eee; }
+    .controls input { width: 100%; padding: .5rem; border-radius: 999px; border: 1px solid #ccc; }
+    .word-list { overflow-y: auto; flex: 1; }
+    .word-item { padding: .6rem .9rem; cursor: pointer; border-bottom: 1px solid #f2f2f2; }
+    .word-item.active { background: #ffe082; }
+    .main { flex: 1; padding: 1rem 1.5rem; display: flex; flex-direction: column; gap: .7rem; }
+    .toolbar { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .5rem; }
+    .toolbar button { padding: .35rem .75rem; border-radius: 999px; border: 1px solid #ccc; background: #fff; cursor: pointer; }
+    .card { background: #fff; padding: 1rem; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,.06); flex: 1; }
+    #quizArea { display: none; margin-top: .9rem; }
+  </style>
+</head>
+
+<body>
+<header>
+  <h1>Spelling Bee Reviewer</h1>
+  <p>JSON word list is stored inline.</p>
+</header>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="controls">
+      <input id="searchBox" type="text" placeholder="Search word..." />
+    </div>
+    <div id="wordList" class="word-list"></div>
+  </aside>
+
+  <main class="main">
+    <div class="toolbar">
+      <button id="nextRandomBtn">Next Random</button>
+      <div style="display:flex;align-items:center;gap:.4rem;">
+        <label><input type="checkbox" id="quizToggle"> Quiz Mode</label>
+        <button id="toggleSidebarBtn">Hide List</button>
+      </div>
+    </div>
+
+    <section class="card">
+      <h2 id="wordTitle">Choose a word</h2>
+      <p id="pronunciation"></p>
+      <p id="meta"></p>
+      <p id="definition"></p>
+      <button id="audioBtn">Play audio</button>
+      <a id="mwLink" href="#" target="_blank" style="display:none;">Open MW</a>
+
+      <div id="quizArea">
+        <label for="answerInput">Type the spelling</label>
+        <input id="answerInput" type="text">
+        <button id="checkBtn">Check</button>
+        <p id="resultMsg"></p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script id="wordData" type="application/json">
+[
+  "almanac",
+  "hippies",
+  "samosas",
+  "campaign",
+  "pistachio",
+  "mosque",
+  "zombielike",
+  "warlock",
+  "colossus",
+  "convulsively",
+  "dimensional",
+  "garishly",
+  "graffitist",
+  "Everest",
+  "dexterity",
+  "cavorting",
+  "marauder",
+  "conscience",
+  "battlements",
+  "deferential",
+  "albatross",
+  "khaki",
+  "opalescent",
+  "asphalt",
+  "Yiddish",
+  "talcum",
+  "tranquilizer",
+  "equestrian",
+  "plaited",
+  "monsieur",
+  "manticores",
+  "prestigious",
+  "fraidycat",
+  "guttural",
+  "lo mein",
+  "courier",
+  "sans serif",
+  "psyche",
+  "stucco",
+  "Frankenstein",
+  "schema",
+  "et cetera",
+  "vidimus",
+  "delphine",
+  "slough",
+  "archipelago",
+  "serape",
+  "sarape",
+  "puissance",
+  "pinioning",
+  "chignon",
+  "pheromone",
+  "galleon",
+  "magnanimous",
+  "chartreuse",
+  "wainscoting",
+  "Nehru",
+  "tuberculosis",
+  "barricade",
+  "confreres",
+  "anonymously",
+  "unparalleled",
+  "barrette",
+  "chassis",
+  "junket",
+  "quandary",
+  "Erie",
+  "gingham",
+  "silhouette",
+  "auxiliary",
+  "thesaurus",
+  "patriarchs",
+  "chandelier",
+  "dulce",
+  "concierge",
+  "latticework",
+  "hibiscus",
+  "tamale",
+  "maracas",
+  "gyroplane",
+  "burpees",
+  "Adriatic",
+  "piccolo",
+  "au revoir",
+  "tulle",
+  "boll weevil",
+  "camphor",
+  "Tucson",
+  "paparazzi",
+  "pumpernickel",
+  "pogrom",
+  "bursitis",
+  "patisserie",
+  "cycads",
+  "sarsaparilla",
+  "maitre d'",
+  "cannelloni",
+  "boulangerie",
+  "bronchitis",
+  "Oswego",
+  "diphtheria",
+  "baklava",
+  "corbels",
+  "trebuchets",
+  "Kilimanjaro",
+  "fraulein",
+  "protege",
+  "hors d'oeuvres",
+  "maquisards",
+  "Aubusson",
+  "Charolais",
+  "Charollais",
+  "gangly",
+  "swaggering",
+  "chimneys",
+  "riveted",
+  "plaid",
+  "dirge",
+  "zeal",
+  "whittled",
+  "depots",
+  "fiberglass",
+  "salvaged",
+  "fissures",
+  "enthusiastic",
+  "discipline",
+  "unfamiliar",
+  "scurrying",
+  "dignitaries",
+  "pizzeria",
+  "dismissal",
+  "skittish",
+  "careened",
+  "nomination",
+  "opportunist",
+  "dictatorship",
+  "comrades",
+  "sporadic",
+  "promenade",
+  "repugnant",
+  "invincible",
+  "renowned",
+  "parachute",
+  "laborious",
+  "appointment",
+  "foreseeable",
+  "ratify",
+  "scalpel",
+  "reclusive",
+  "compassionate",
+  "bulletin",
+  "alfalfa",
+  "officially",
+  "crematorium",
+  "bayonet",
+  "amicable",
+  "exuberant",
+  "beautician",
+  "equations",
+  "assignment",
+  "ultimatum",
+  "whinnying",
+  "squalor",
+  "memoirs",
+  "cylinders",
+  "ominous",
+  "muffler",
+  "syndrome",
+  "premises",
+  "safari",
+  "lasagna",
+  "substantially",
+  "mercantile",
+  "formidable",
+  "propaganda",
+  "marquee",
+  "proficient",
+  "compunction",
+  "emphatically",
+  "hyperventilated",
+  "ostracism",
+  "onslaught",
+  "ruefully",
+  "misanthrope",
+  "prototype",
+  "cravenly",
+  "mulberry",
+  "hypocritical",
+  "chlorine",
+  "traumatic",
+  "receipts",
+  "solemnly",
+  "begrudge",
+  "contentious",
+  "precocious",
+  "ensemble",
+  "cadre",
+  "lye",
+  "belfry",
+  "lacrosse",
+  "sluice",
+  "cajolery",
+  "vigilance",
+  "residuals",
+  "boutique",
+  "peroxide",
+  "aristocracy",
+  "apocalypse",
+  "tag",
+  "send",
+  "deck",
+  "stuck",
+  "snug",
+  "fish",
+  "hold",
+  "mind",
+  "stay",
+  "scrub",
+  "draw",
+  "brown",
+  "cozy",
+  "cosy",
+  "tint",
+  "milk",
+  "yawn",
+  "tank",
+  "want",
+  "crowd",
+  "pond",
+  "skirt",
+  "sharks",
+  "quilt",
+  "twigs",
+  "taffy",
+  "comfy",
+  "stretch",
+  "tight",
+  "candy",
+  "scrunch",
+  "ruby",
+  "close",
+  "tackle",
+  "wire",
+  "skater",
+  "giant",
+  "bucket",
+  "chance",
+  "baskets",
+  "tender",
+  "paste",
+  "melon",
+  "farmer",
+  "parent",
+  "tail",
+  "hockey",
+  "slime",
+  "insects",
+  "teeth",
+  "shortcut",
+  "bait",
+  "lure",
+  "cluster",
+  "forest",
+  "hollow",
+  "spinning",
+  "baffling",
+  "sizzling",
+  "hoist",
+  "search",
+  "remind",
+  "mango",
+  "coral",
+  "jangle",
+  "shimmer",
+  "blossoms",
+  "swampy",
+  "studded",
+  "focus",
+  "distress",
+  "lessons",
+  "moment",
+  "ajar",
+  "basil",
+  "triple",
+  "satin",
+  "ahoy",
+  "signal",
+  "answer",
+  "shuffle",
+  "dollop",
+  "minnows",
+  "silver",
+  "before",
+  "circus",
+  "writing",
+  "kitchen",
+  "sugar",
+  "awkward",
+  "seep",
+  "sweet",
+  "wheels",
+  "faint",
+  "fruit",
+  "roam",
+  "goats",
+  "woozy",
+  "limbs",
+  "ahead",
+  "senor",
+  "unicorn",
+  "faraway",
+  "heater",
+  "pirates",
+  "understand",
+  "wooden",
+  "leaning",
+  "breakfast",
+  "window",
+  "acrobat",
+  "message",
+  "chocolate",
+  "forepaw",
+  "elephant",
+  "hedgehog",
+  "recipe",
+  "garbage",
+  "surprise",
+  "mermaid",
+  "bombarded",
+  "disability",
+  "incredible",
+  "leather",
+  "countess",
+  "nervous",
+  "peppercorn",
+  "cartwheel",
+  "raise",
+  "weather",
+  "zooming",
+  "attacked",
+  "turnout",
+  "catch",
+  "streetlights",
+  "journey",
+  "courtyard",
+  "shouting",
+  "asleep",
+  "curious",
+  "dinosaur",
+  "brilliant",
+  "vacuum",
+  "gorgeous",
+  "monsoon",
+  "dangerous",
+  "avocado",
+  "valentine",
+  "February",
+  "formation",
+  "especially",
+  "hesitate",
+  "scorcher",
+  "scavenger",
+  "fragments",
+  "deflated",
+  "unleash",
+  "ration",
+  "cosmetics",
+  "crawdad",
+  "frustration",
+  "unruly",
+  "mascot",
+  "aroma",
+  "moustache",
+  "mustache",
+  "artifacts",
+  "artefacts",
+  "perfume",
+  "sinister",
+  "tuxedo",
+  "discoveries",
+  "lurches",
+  "language",
+  "prognosis",
+  "Buffalo",
+  "sequins",
+  "gallop",
+  "fabulous",
+  "lanky",
+  "fluently",
+  "mysterious",
+  "brandished",
+  "sardines",
+  "anguish",
+  "conical",
+  "rickety",
+  "lilt",
+  "pediatric",
+  "porridge",
+  "democracy",
+  "rummage",
+  "beige",
+  "ancestral",
+  "grimace",
+  "gaunt",
+  "enormous",
+  "geranium",
+  "nautical",
+  "dubious",
+  "ebony",
+  "foreign",
+  "paltry",
+  "verdict",
+  "garbled",
+  "encourages",
+  "imitation",
+  "miniature",
+  "receptionist",
+  "preamble",
+  "plausible",
+  "reprimanding",
+  "commotion",
+  "oblivion",
+  "immigrants",
+  "steeple",
+  "spectators",
+  "lanyards",
+  "suspicious",
+  "parchment",
+  "ramshackle",
+  "fugitive",
+  "heron",
+  "dissolving",
+  "nomad",
+  "billowed",
+  "skewer",
+  "Berlin",
+  "lunacy",
+  "conjure",
+  "bracken",
+  "noggin",
+  "neon",
+  "rakish",
+  "hypnosis",
+  "rotunda",
+  "gusto",
+  "toiletries",
+  "gleaned",
+  "jeered",
+  "winsome",
+  "prattling",
+  "galore",
+  "emporium",
+  "atrium",
+  "eccentric",
+  "savant"
+]</script>
+
+<script>
+let rawWords = JSON.parse(document.getElementById("wordData").textContent);
+let filtered = rawWords.map((_,i)=>i);
+let idx = 0;
+
+const wordCache = {};
+const sidebar = document.querySelector(".sidebar");
+const toggleSidebarBtn = document.getElementById("toggleSidebarBtn");
+let sidebarVisible = true;
+
+const listEl=document.getElementById("wordList"),
+searchBox=document.getElementById("searchBox"),
+wordTitle=document.getElementById("wordTitle"),
+pronEl=document.getElementById("pronunciation"),
+metaEl=document.getElementById("meta"),
+defEl=document.getElementById("definition"),
+audioBtn=document.getElementById("audioBtn"),
+quizToggle=document.getElementById("quizToggle"),
+quizArea=document.getElementById("quizArea"),
+answerInput=document.getElementById("answerInput"),
+checkBtn=document.getElementById("checkBtn"),
+resultMsg=document.getElementById("resultMsg"),
+mwLink=document.getElementById("mwLink");
+quizToggle.addEventListener("change", () => {
+    showWord(false);
+});
+
+function renderList(){
+  listEl.innerHTML="";
+  filtered.forEach((i,pos)=>{
+    const w=rawWords[i];
+    const div=document.createElement("div");
+    div.className="word-item"+(pos===idx?" active":"");
+    div.textContent=w;
+    div.onclick=()=>{ idx=pos; showWord(true); };
+    listEl.appendChild(div);
+  });
+}
+
+async function fetchInfo(word){
+  if(wordCache[word]) return wordCache[word];
+  try{
+    const res=await fetch("https://api.dictionaryapi.dev/api/v2/entries/en/"+encodeURIComponent(word));
+    const data=await res.json();
+    const e=data[0], m=e.meanings[0], p=e.phonetics.find(x=>x.audio)||{};
+    return wordCache[word]={ def:m.definitions[0].definition, pos:m.partOfSpeech, pron:p.text||"", audio:p.audio||"" };
+  }catch{
+    return wordCache[word]={ def:"(No definition)", pos:"", pron:"", audio:"" };
+  }
+}
+
+async function showWord(playAudio){
+  renderList();
+  const word = rawWords[filtered[idx]];
+  const info = await fetchInfo(word);
+  const quiz = quizToggle.checked;				
+
+  wordTitle.textContent = quiz ? "Spell this word" : word;
+  pronEl.textContent = quiz ? "" : ("Pronunciation: "+info.pron);
+  pronEl.style.display = quiz ? "none" : "block";
+  quizArea.style.display = quiz ? "block" : "none";	
+  metaEl.textContent = "Part of speech: "+info.pos;
+  defEl.textContent = info.def;
+
+  mwLink.href="https://www.merriam-webster.com/dictionary/"+encodeURIComponent(word);
+  mwLink.style.display="inline";
+
+  quizArea.style.display = quizToggle.checked ? "block" : "none";
+  resultMsg.textContent="";
+  answerInput.value="";
+
+  audioBtn.onclick = ()=>{
+    if(info.audio){ new Audio(info.audio).play().catch(()=>tts(word)); }
+    else tts(word);
+  };
+
+  if(playAudio) audioBtn.click();
+}
+
+function tts(w){
+  const u=new SpeechSynthesisUtterance(w);
+  u.lang="en-US";
+  speechSynthesis.cancel();
+  speechSynthesis.speak(u);
+}
+
+searchBox.oninput = ()=>{
+  const q=searchBox.value.toLowerCase();
+  filtered = rawWords.map((w,i)=>({w,i})).filter(o=>o.w.toLowerCase().includes(q)).map(o=>o.i);
+  idx=0;
+  showWord(false);
+};
+
+checkBtn.onclick=()=>{
+  const guess=answerInput.value.trim().toLowerCase();
+  const correct=rawWords[filtered[idx]].toLowerCase();
+  if(!guess){ resultMsg.textContent="Enter spelling"; return; }
+  resultMsg.textContent = guess===correct ? "✓ Correct!" : "✗ Incorrect. Correct: "+correct;
+  resultMsg.style.color = guess===correct ? "green" : "red";
+};
+
+document.getElementById("nextRandomBtn").onclick = ()=>{
+  let newPos;
+  do{ newPos=Math.floor(Math.random()*filtered.length); }
+  while(newPos===idx && filtered.length>1);
+  idx=newPos;
+  showWord(true);
+};
+
+toggleSidebarBtn.onclick=()=>{
+  sidebarVisible=!sidebarVisible;
+  sidebar.style.display = sidebarVisible ? "" : "none";
+  toggleSidebarBtn.textContent = sidebarVisible ? "Hide List" : "Show List";
+};
+
+renderList();
+showWord(false);
+</script>
+
+</body>
+</html>
